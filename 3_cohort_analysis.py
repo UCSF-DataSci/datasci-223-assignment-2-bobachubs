@@ -58,7 +58,8 @@ def main():
        return
     
     # Print summary statistics
-    print("\nCohort Analysis Summary:")
+    # change 
+    print("\nCohort Analysis Results:")
     print(results)
 
 if __name__ == "__main__":
