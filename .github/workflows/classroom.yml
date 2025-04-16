@@ -1,0 +1,54 @@
+name: Auto-grading
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Download test files
+      run: |
+        # Create test directory if it doesn't exist
+        mkdir -p .github/tests
+        
+        # Download test files directly
+        curl -o .github/tests/test_patient_data_cleaner.py https://raw.githubusercontent.com/UCSF-DataSci/ucsf-datasci-223-25-winter-datasci-223-assignment-2-datasci223_assignment2/main/.github/tests/test_patient_data_cleaner.py
+        curl -o .github/tests/test_med_dosage_calculator.py https://raw.githubusercontent.com/UCSF-DataSci/ucsf-datasci-223-25-winter-datasci-223-assignment-2-datasci223_assignment2/main/.github/tests/test_med_dosage_calculator.py
+        curl -o .github/tests/test_cohort_analysis.py https://raw.githubusercontent.com/UCSF-DataSci/ucsf-datasci-223-25-winter-datasci-223-assignment-2-datasci223_assignment2/main/.github/tests/test_cohort_analysis.py
+        curl -o .github/tests/requirements.txt https://raw.githubusercontent.com/UCSF-DataSci/ucsf-datasci-223-25-winter-datasci-223-assignment-2-datasci223_assignment2/main/.github/tests/requirements.txt
+    
+    - name: Install test dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r .github/tests/requirements.txt
+    
+    - name: Run tests
+      run: |
+        pytest .github/tests/test_patient_data_cleaner.py -v
+        pytest .github/tests/test_med_dosage_calculator.py -v
+        pytest .github/tests/test_cohort_analysis.py -v
+    
+    - name: Check for README.md
+      run: |
+        if [ ! -f "README.md" ]; then
+          echo "ERROR: README.md file is missing"
+          exit 1
+        fi
+        
+        if ! grep -q "http" README.md; then
+          echo "WARNING: README.md might be missing a link to music recommendation"
+        fi
